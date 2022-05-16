@@ -15,6 +15,7 @@ import (
 	"redisChat/Client/services"
 	"redisChat/Client/services/viewmodels"
 	worker "redisChat/Client/worker"
+	"strconv"
 	"strings"
 	"sync"
 	"syscall"
@@ -60,7 +61,7 @@ func run() (err error) {
 
 	// Get user name
 	var input string
-	fmt.Println("Please enter your username (without spaces) and desired port separated by a dash ( - ), e.g. John - 1055")
+	fmt.Println("Please enter your username (without spaces) and desired port separated by a dash ( - ), e.g. John - 1055. Port can be any port between 1054 and 10529")
 	reader := bufio.NewReader(os.Stdin)
 
 	// ReadString will block until the delimiter is entered
@@ -77,6 +78,13 @@ func run() (err error) {
 	inputs := strings.Split(input, " - ")
 	config.User = inputs[0]
 	config.ClientPort = inputs[1]
+
+	// Check that valid port was given
+	port, err := strconv.Atoi(config.ClientPort)
+	if err != nil || port < 1054 || port > 10529 {
+		logger.Logger.Error("invalid port", err, logger.Information{})
+		return
+	}
 
 	messageRepository := repositories.NewMessageRepository()
 	UDPService = services.NewUDPService(messageRepository)
