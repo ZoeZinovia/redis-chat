@@ -29,6 +29,8 @@ func (w *Worker) StartListener() (err error) {
 	}
 	defer listener.Close()
 
+	fmt.Println("=== Listener started ===")
+
 	for {
 
 		// Listen for message
@@ -102,7 +104,7 @@ func (w *Worker) StartBroadcaster() (err error) {
 	}
 	defer broadcaster.Close()
 
-	fmt.Println("Listening for broadcast...")
+	fmt.Println("=== Broadcaster started ===")
 
 	for {
 		// Wait for message to be sent on channel
