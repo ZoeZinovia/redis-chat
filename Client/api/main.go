@@ -76,6 +76,12 @@ func run() (err error) {
 
 	// Get user and port
 	inputs := strings.Split(input, " - ")
+
+	// Check that correct syntax was used
+	if len(inputs) != 2 {
+		logger.Logger.Error("invalid syntax", err, logger.Information{})
+		return
+	}
 	config.User = inputs[0]
 	config.ClientPort = inputs[1]
 

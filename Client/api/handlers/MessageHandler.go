@@ -8,6 +8,7 @@ import (
 	"redisChat/Client/interfaces/services"
 	logger "redisChat/Client/pkg/log"
 	"redisChat/Client/services/viewmodels"
+	"strconv"
 )
 
 type MessageHandler struct {
@@ -22,6 +23,7 @@ func NewMessageHandler(r *mux.Router, serv services.UDPService, repo repositorie
 	}
 
 	r.Handle("/message", http.HandlerFunc(handler.PostMessage)).Methods("POST")
+	r.Handle("/message/{id}", http.HandlerFunc(handler.DeleteMessage)).Methods("DELETE")
 	r.Handle("/messages", http.HandlerFunc(handler.GetMessages)).Methods("GET")
 }
 
@@ -43,6 +45,24 @@ func (h *MessageHandler) PostMessage(w http.ResponseWriter, r *http.Request) {
 
 	// Call service that will send message to server
 	if err = h.udpService.SendMessage(message); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+}
+
+// DeleteMessage decodes the message id and calls the service that sends a delete request to the server
+func (h *MessageHandler) DeleteMessage(w http.ResponseWriter, r *http.Request) {
+
+	// Get message ID
+	vars := mux.Vars(r)
+	messageTID, err := strconv.Atoi(vars["id"])
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	// Call service that will send delete message to server
+	if err = h.udpService.DeleteMessage(messageTID); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}

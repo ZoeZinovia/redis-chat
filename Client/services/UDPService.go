@@ -29,14 +29,15 @@ func (s *udpService) ReceiveMessage(buf []byte, n int) {
 
 	// Check if message is an error
 	if strings.Contains(string(buf[:n]), "err") {
-		logger.Logger.Info("received an error message", logger.Information{})
+		logger.Logger.Info("received an error message", logger.Information{
+			"error": string(buf[:n]),
+		})
 		return
 	}
 
+	// Check if server is closing
 	if strings.Contains(string(buf[:n]), "closing connection") {
-		logger.Logger.Info("server has closed", logger.Information{
-			"error": string(buf[:n]),
-		})
+		logger.Logger.Info("server has closed", logger.Information{})
 		return
 	}
 
@@ -106,6 +107,21 @@ func (s *udpService) SendMessage(message *viewmodels.UDPMessage) (err error) {
 	if strings.Contains(string(buf[:n]), "err") {
 		logger.Logger.Info("received an error message", logger.Information{})
 		err = errors.New(string(buf[:n]))
+	}
+
+	return
+}
+
+// DeleteMessage marshals the delete message and sends it via udp
+func (s *udpService) DeleteMessage(messageID int) (err error) {
+
+	// Send message to connect to server
+	if err = s.SendMessage(&viewmodels.UDPMessage{
+		Message: fmt.Sprintf("delete %d", messageID),
+		User:    config.User,
+	}); err != nil {
+		logger.Logger.Error("sending udp delete mesage", err, logger.Information{})
+		return
 	}
 
 	return
