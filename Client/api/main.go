@@ -61,7 +61,7 @@ func run() (err error) {
 
 	// Get user name
 	var input string
-	fmt.Println("Please enter your username (without spaces) and desired port separated by a dash ( - ), e.g. John - 1055. Port can be any port between 1054 and 10529")
+	fmt.Println("Please enter your username (without spaces)")
 	reader := bufio.NewReader(os.Stdin)
 
 	// ReadString will block until the delimiter is entered
@@ -72,23 +72,46 @@ func run() (err error) {
 	}
 
 	// Remove the delimeter from the string
-	input = strings.TrimSuffix(input, "\n")
+	config.User = strings.TrimSuffix(input, "\n")
 
-	// Get user and port
-	inputs := strings.Split(input, " - ")
+	// Read desired udp and http ports
+	fmt.Println("Please enter desired UDP port. Port can be any port between 1054 and 10529")
 
-	// Check that correct syntax was used
-	if len(inputs) != 2 {
-		logger.Logger.Error("invalid syntax", err, logger.Information{})
+	// ReadString will block until the delimiter is entered
+	input, err = reader.ReadString('\n')
+	if err != nil {
+		logger.Logger.Error("reading UDP port", err, logger.Information{})
 		return
 	}
-	config.User = inputs[0]
-	config.ClientPort = inputs[1]
 
-	// Check that valid port was given
+	// Remove the delimeter from the string
+	config.ClientPort = strings.TrimSuffix(input, "\n")
+
+	// Check that valid udp port was given
 	port, err := strconv.Atoi(config.ClientPort)
 	if err != nil || port < 1054 || port > 10529 {
-		logger.Logger.Error("invalid port", err, logger.Information{})
+		logger.Logger.Error("invalid UDP port", err, logger.Information{})
+		return
+	}
+
+	// Read desired http port
+	fmt.Println("Please enter desired HTTP port. Port can be any port between 10532 and 20000")
+
+	// ReadString will block until the delimiter is entered
+	input, err = reader.ReadString('\n')
+	if err != nil {
+		logger.Logger.Error("reading HTTP port", err, logger.Information{})
+		return
+	}
+
+	// Remove the delimeter from the string
+	config.HTTPPort = strings.TrimSuffix(input, "\n")
+
+	// Check that valid http port was given
+	var httpPort int
+	httpPort, err = strconv.Atoi(config.HTTPPort)
+	if err != nil || httpPort < 10532 || httpPort > 20000 {
+		logger.Logger.Error("invalid HTTP port", err, logger.Information{})
 		return
 	}
 
@@ -126,7 +149,7 @@ func run() (err error) {
 		router := mux.NewRouter()
 		handlers.NewMessageHandler(router, UDPService, messageRepository)
 		fmt.Println("=== Started router ===")
-		if err = http.ListenAndServe(":8000", router); err != nil {
+		if err = http.ListenAndServe(fmt.Sprintf(":%s", config.HTTPPort), router); err != nil {
 			logger.Logger.Error("starting http server", err, logger.Information{})
 			wg.Done()
 			return

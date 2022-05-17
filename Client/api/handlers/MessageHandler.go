@@ -61,8 +61,20 @@ func (h *MessageHandler) DeleteMessage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Initialize struct
+	message := &viewmodels.UDPMessage{}
+
+	// Decode message
+	if err = json.NewDecoder(r.Body).Decode(message); err != nil {
+		logger.Logger.Error("error decoding message", err, logger.Information{
+			"body": r.Body,
+		})
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
 	// Call service that will send delete message to server
-	if err = h.udpService.DeleteMessage(messageTID); err != nil {
+	if err = h.udpService.DeleteMessage(messageTID, message); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}

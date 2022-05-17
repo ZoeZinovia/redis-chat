@@ -54,3 +54,17 @@ func (r *messageRepository) GetMessages() (messages *entities.Messages) {
 
 	return
 }
+
+// GetMessageUserByID gets the user associated with a message
+func (r *messageRepository) GetMessageUserByID(ID int) (messageUser string) {
+	mapMutex.Lock()
+	for _, m := range r.messageMap {
+		if m.ID == ID {
+			messageUser = m.User
+			break
+		}
+	}
+	mapMutex.Unlock()
+
+	return
+}

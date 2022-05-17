@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"net"
+	"os"
 	"redisChat/Client/config"
 	"redisChat/Client/interfaces/repositories"
 	"redisChat/Client/interfaces/services"
@@ -38,7 +39,7 @@ func (s *udpService) ReceiveMessage(buf []byte, n int) {
 	// Check if server is closing
 	if strings.Contains(string(buf[:n]), "closing connection") {
 		logger.Logger.Info("server has closed", logger.Information{})
-		return
+		os.Exit(1)
 	}
 
 	// Unmarshal the byte slice
@@ -113,7 +114,14 @@ func (s *udpService) SendMessage(message *viewmodels.UDPMessage) (err error) {
 }
 
 // DeleteMessage marshals the delete message and sends it via udp
-func (s *udpService) DeleteMessage(messageID int) (err error) {
+func (s *udpService) DeleteMessage(messageID int, message *viewmodels.UDPMessage) (err error) {
+
+	// Check that user is owner of message
+	messageUser := s.messageRepository.GetMessageUserByID(messageID)
+	if message.User != messageUser {
+		err = services.ErrPermissionDenied
+		return
+	}
 
 	// Send message to connect to server
 	if err = s.SendMessage(&viewmodels.UDPMessage{

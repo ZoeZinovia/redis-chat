@@ -1,6 +1,11 @@
 package services
 
-import "redisChat/Client/services/viewmodels"
+import (
+	"errors"
+	"redisChat/Client/services/viewmodels"
+)
+
+var ErrPermissionDenied = errors.New("permission denied")
 
 type UDPService interface {
 	// ReceiveMessage unmarshals a message received via udp and calls the handleMessage function
@@ -10,7 +15,7 @@ type UDPService interface {
 	SendMessage(message *viewmodels.UDPMessage) (err error)
 
 	// DeleteMessage marshals the delete message and sends it via udp
-	DeleteMessage(messageID int) (err error)
+	DeleteMessage(messageID int, message *viewmodels.UDPMessage) (err error)
 
 	// GetAllMessages retrieves all messages that are stored in memory
 	// Set on connect and updated with every broadcast

@@ -9,6 +9,7 @@ import (
 var ClientConfig Config
 var User string
 var ClientPort string
+var HTTPPort string
 
 type Config struct {
 	ServerAddressReceiver string `json:"server_address_receiver"`
