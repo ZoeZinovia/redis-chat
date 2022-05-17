@@ -9,8 +9,8 @@ The client has a REST API handler layer, which allows for a GET request to get a
 The clients communicates with the server via UDP. The client has a udp listener that listens for udp messages from the server (e.g. when another client sends a message). Additionally, 
 the client has an http listener that listens for requests coming in.
 
-Currently both the http and udp communication are done via localhost. The http connection uses port 8000, whilst the udp connection port is determined by the user when the client is launched (see more in the 'installing and using' section).
-It was required to set a static port for clients since the server maintains a map with key = user and value = ip:port. This was done so that broadcast messages can be sent to connected clients when needed.
+Currently both the http and udp communication are done via localhost. The http and udp connections use ports provided by the user when the client is launched (see more in the 'installing and using' section).
+It was required to set a static port for clients since the server maintains a map with key = user and value = ip:port. This was done so that broadcast messages can be sent to connected clients when needed. 
 
 Once the client starts running, it sends a "connect" message to the server and receives all of the up to date messages, in the correct order. When the client is stopped, it sends a "disconnect" message to the server.
 
@@ -31,11 +31,20 @@ Once the client starts running, it sends a "connect" message to the server and r
 * The program will then ask for your input:
 ```
 Starting Redis Chat...
-Please enter your username (without spaces) and desired port separated by a dash ( - ), e.g. John - 1055. Port can be any port between 1054 and 10529.
+Please enter your username (without spaces)
 ```
 
-You can then type your input as follows: ```<name> - <port>```, where name is your desired username and port is your desired port (in allowed range).
-If the client is running, then the following messages will be displayed:
+You can then type your input as follows: ```<name>```, where name is your desired username. It will then ask for your desired UDP port (in allowed range):
+```
+Please enter desired UDP port. Port can be any port between 1054 and 10529
+```
+
+And finally it will ask for your desired HTTP port:
+```
+Please enter desired HTTP port. Port can be any port between 10532 and 20000
+```
+
+If an HTTP port or UDP port is already in use, it will return an error. If the provided port is not in the allowed range, it will return an error. If the client is running, then the following messages will be displayed:
 
 ```
 === Listener up and running ===
