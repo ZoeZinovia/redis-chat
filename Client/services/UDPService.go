@@ -123,7 +123,7 @@ func (s *udpService) DeleteMessage(messageID int, message *viewmodels.UDPMessage
 		return
 	}
 
-	// Send message to connect to server
+	// Send message to delete message
 	if err = s.SendMessage(&viewmodels.UDPMessage{
 		Message: fmt.Sprintf("delete %d", messageID),
 		User:    config.User,
