@@ -58,6 +58,12 @@ func (s *udpService) ReceiveMessage(buf []byte, n int) {
 
 // SendMessages marshals the provided message and sends it via udp
 func (s *udpService) SendMessage(message *viewmodels.UDPMessage) (err error) {
+	// Check that send request is from current user
+	if message.User != config.User {
+		err = services.ErrPermissionDenied
+		return
+	}
+
 	// Get server address and port from config
 	address := config.ClientConfig.ServerAddressReceiver
 	myPort := config.ClientPort
@@ -118,7 +124,7 @@ func (s *udpService) DeleteMessage(messageID int, message *viewmodels.UDPMessage
 
 	// Check that user is owner of message
 	messageUser := s.messageRepository.GetMessageUserByID(messageID)
-	if message.User != messageUser {
+	if message.User != messageUser || message.User != config.User {
 		err = services.ErrPermissionDenied
 		return
 	}

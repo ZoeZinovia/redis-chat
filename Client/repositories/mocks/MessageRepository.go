@@ -15,6 +15,20 @@ type MessageRepository struct {
 	mock.Mock
 }
 
+// GetMessageUserByID provides a mock function with given fields: ID
+func (_m *MessageRepository) GetMessageUserByID(ID int) string {
+	ret := _m.Called(ID)
+
+	var r0 string
+	if rf, ok := ret.Get(0).(func(int) string); ok {
+		r0 = rf(ID)
+	} else {
+		r0 = ret.Get(0).(string)
+	}
+
+	return r0
+}
+
 // GetMessages provides a mock function with given fields:
 func (_m *MessageRepository) GetMessages() *entities.Messages {
 	ret := _m.Called()
